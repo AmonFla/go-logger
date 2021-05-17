@@ -4,20 +4,33 @@ import (
 	"encoding/json"
 	"fmt"
 	"log/syslog"
-	"mmc-web-rtc/internal/jsonconfig"
-	"mmc-web-rtc/internal/tools"
 	"sync"
 	"time"
+
+	tools "github.com/AmonFla/go-tools/epub"
 )
 
 // global package
 var l LoggerStruct
 var once sync.Once
 
+type ConfigStruct struct {
+	AppName            string
+	DefaultSyslogLevel string
+	Method             string
+	RemoteSyslog       struct {
+		IP   string
+		Port string
+		Type string
+	}
+	NotifyLevel []string
+	ConsoleLog  bool
+}
+
 type LoggerStruct struct {
 	prio      map[string]syslog.Priority
 	logwriter *syslog.Writer
-	config    jsonconfig.LoggerStruct
+	config    ConfigStruct
 }
 
 type LoggerMessageStruct struct {
@@ -57,14 +70,14 @@ func connect() {
 	}
 }
 
-func NewLogger(c jsonconfig.JSONConfig) LoggerStruct {
-	l.config = c.Logger
+func NewLogger(c ConfigStruct) LoggerStruct {
+	l.config = c
 	once.Do(connect)
 	return l
 }
 
 func (log LoggerStruct) LogData(level, msg, file, function string, flag int) {
-	if tools.InStringArray(level, log.config.NotifyLevel) {
+	if tools.StringInArray(level, log.config.NotifyLevel) {
 		currentTime := time.Now().Local()
 		m, _ := json.Marshal(LoggerMessageStruct{currentTime.Format("2006-01-02 15:04:05.000"), level, msg, file, function, flag})
 		switch level {
