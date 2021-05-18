@@ -18,15 +18,16 @@ type ConfigStruct struct {
 	AppName            string
 	DefaultSyslogLevel string
 	Method             string
-	RemoteSyslog       struct {
-		IP   string
-		Port string
-		Type string
-	}
-	NotifyLevel []string
-	ConsoleLog  bool
+	RemoteSyslog       RemoteSyslogStruct
+	NotifyLevel        []string
+	ConsoleLog         bool
 }
 
+type RemoteSyslogStruct struct {
+	IP   string
+	Port string
+	Type string
+}
 type LoggerStruct struct {
 	prio      map[string]syslog.Priority
 	logwriter *syslog.Writer
@@ -40,19 +41,6 @@ type LoggerMessageStruct struct {
 	File     string
 	Function string
 	Flag     int
-}
-
-func init() {
-	l.prio = map[string]syslog.Priority{
-		"LOG_EMERG":   syslog.LOG_EMERG,
-		"LOG_ALERT":   syslog.LOG_ALERT,
-		"LOG_CRIT":    syslog.LOG_CRIT,
-		"LOG_ERR":     syslog.LOG_ERR,
-		"LOG_WARNING": syslog.LOG_WARNING,
-		"LOG_NOTICE":  syslog.LOG_NOTICE,
-		"LOG_INFO":    syslog.LOG_INFO,
-		"LOG_DEBUG":   syslog.LOG_DEBUG,
-	}
 }
 
 func connect() {
@@ -71,7 +59,17 @@ func connect() {
 }
 
 func Init(c ConfigStruct) {
-	l.config = c
+	l = &LoggerStruct{
+		config: c,
+		prio: map[string]syslog.Priority{
+			"LOG_EMERG":   syslog.LOG_EMERG,
+			"LOG_ALERT":   syslog.LOG_ALERT,
+			"LOG_CRIT":    syslog.LOG_CRIT,
+			"LOG_ERR":     syslog.LOG_ERR,
+			"LOG_WARNING": syslog.LOG_WARNING,
+			"LOG_NOTICE":  syslog.LOG_NOTICE,
+			"LOG_INFO":    syslog.LOG_INFO,
+			"LOG_DEBUG":   syslog.LOG_DEBUG}}
 }
 
 func NewLogger() *LoggerStruct {
