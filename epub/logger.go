@@ -70,9 +70,12 @@ func connect() {
 	}
 }
 
-func NewLogger(c ConfigStruct) *LoggerStruct {
-	if l == nil {
-		l.config = c
+func Init(c ConfigStruct) {
+	l.config = c
+}
+
+func NewLogger() *LoggerStruct {
+	if l.logwriter == nil {
 		once.Do(connect)
 	}
 	return l
