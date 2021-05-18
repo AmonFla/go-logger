@@ -11,7 +11,7 @@ import (
 )
 
 // global package
-var l LoggerStruct
+var l *LoggerStruct
 var once sync.Once
 
 type ConfigStruct struct {
@@ -70,9 +70,11 @@ func connect() {
 	}
 }
 
-func NewLogger(c ConfigStruct) LoggerStruct {
-	l.config = c
-	once.Do(connect)
+func NewLogger(c ConfigStruct) *LoggerStruct {
+	if l == nil {
+		l.config = c
+		once.Do(connect)
+	}
 	return l
 }
 
